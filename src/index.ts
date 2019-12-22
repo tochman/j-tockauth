@@ -1,4 +1,5 @@
 import Axios, { AxiosResponse } from "axios";
+import localStorageMock from './localStoryMock'
 import {
   JtockAuthOptions,
   DeviseHeader,
@@ -7,6 +8,7 @@ import {
 
 const storageKey = "J-tockAuth-Storage";
 const storageRoleKey = "J-tockAuth-roles";
+
 
 class JtockAuth {
   options: JtockAuthOptions;
@@ -21,15 +23,18 @@ class JtockAuth {
   validateTokenUrl: string;
   roles: Array<any> | undefined;
   constructor(options: JtockAuthOptions) {
+    if (typeof window === "undefined") {
+      const localStorage: any = localStorageMock;
+    }
     this.debug = options.debug ? options.debug : false;
     this.roles = options.useRoles ? [] : undefined;
     this.options = options;
     this.apiUrl = `${options.host}${
       options.prefixUrl ? options.prefixUrl : ""
-    }`;
+      }`;
     this.apiAuthUrl = `${this.apiUrl}${
       options.authUrl ? options.authUrl : "/auth"
-    }`;
+      }`;
     this.emailField = options.emailField ? options.emailField : "email";
     this.passwordField = options.passwordField
       ? options.passwordField
@@ -37,20 +42,20 @@ class JtockAuth {
     // urls
     this.signInUrl = `${this.apiAuthUrl}${
       this.options.authUrl ? this.options.authUrl.signIn : "/sign_in"
-    }`;
+      }`;
     this.signOutUrl = `${this.apiAuthUrl}${
       this.options.authUrl ? this.options.authUrl.signIn : "/sign_out"
-    }`;
+      }`;
     this.validateTokenUrl = `${this.apiAuthUrl}${
       this.options.authUrl
         ? this.options.authUrl.validateToken
         : "/validate_token"
-    }`;
+      }`;
 
     this.setLastSession();
 
-    Axios.interceptors.response.use(function (response) {
-      if (Array.isArray(response.data)){
+    Axios.interceptors.response.use( (response) => {
+      if (Array.isArray(response.data)) {
         return {
           ...response,
           total: response.data.length
@@ -127,7 +132,7 @@ class JtockAuth {
 
     return new Promise(async (resolve, reject) => {
       try {
-        localStorage &&  localStorage.removeItem(storageKey);
+        localStorage && localStorage.removeItem(storageKey);
         const logOutResponse = await Axios.delete(this.signOutUrl, {
           headers: { ...this.session }
         });
@@ -200,7 +205,7 @@ class JtockAuth {
         resolve(changePasswordResponse);
       } catch (err) {
         this.debugIfActive(err.response);
-        if (err.response.headers['access-token']){
+        if (err.response.headers['access-token']) {
           this.setSession(err.response.headers);
         }
         reject(err);
@@ -262,7 +267,7 @@ class JtockAuth {
         resolve(reponse);
       } catch (err) {
         this.debugIfActive(err.response);
-        if (err.response.headers['access-token']){
+        if (err.response.headers['access-token']) {
           this.setSession(err.response.headers);
         }
         reject(err);
@@ -302,7 +307,7 @@ class JtockAuth {
   }
 
   private setLastSession() {
-    const lastSession =  localStorage && localStorage.getItem(storageKey);
+    const lastSession = localStorage && localStorage.getItem(storageKey);
     const lastRoles = localStorage && localStorage.getItem(storageRoleKey);
     if (lastSession) {
       const headers: DeviseHeader = JSON.parse(lastSession);
@@ -314,7 +319,7 @@ class JtockAuth {
   }
 
   private setRoles(response: AxiosResponse<any>) {
-    if(this.options.useRoles){
+    if (this.options.useRoles) {
       this.roles = response && response.data ? response.data.roles : []
       localStorage && localStorage.setItem(storageRoleKey, JSON.stringify(this.roles))
     }

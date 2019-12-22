@@ -9,7 +9,9 @@ import {
 const storageKey = "J-tockAuth-Storage";
 const storageRoleKey = "J-tockAuth-roles";
 
-
+if (typeof window === "undefined") {
+  var localStorage:localStorageMock;
+}
 class JtockAuth {
   options: JtockAuthOptions;
   debug: boolean;
@@ -23,9 +25,7 @@ class JtockAuth {
   validateTokenUrl: string;
   roles: Array<any> | undefined;
   constructor(options: JtockAuthOptions) {
-    if (typeof window === "undefined") {
-      const localStorage: any = localStorageMock;
-    }
+
     this.debug = options.debug ? options.debug : false;
     this.roles = options.useRoles ? [] : undefined;
     this.options = options;

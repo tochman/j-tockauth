@@ -4,14 +4,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
-const localStoryMock_1 = __importDefault(require("./localStoryMock"));
 const storageKey = "J-tockAuth-Storage";
 const storageRoleKey = "J-tockAuth-roles";
+if (typeof window === "undefined") {
+    var localStorage;
+}
 class JtockAuth {
     constructor(options) {
-        if (typeof window === "undefined") {
-            const localStorage = localStoryMock_1.default;
-        }
         this.debug = options.debug ? options.debug : false;
         this.roles = options.useRoles ? [] : undefined;
         this.options = options;

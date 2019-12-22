@@ -127,7 +127,7 @@ class JtockAuth {
 
     return new Promise(async (resolve, reject) => {
       try {
-        localStorage.removeItem(storageKey);
+        localStorage &&  localStorage.removeItem(storageKey);
         const logOutResponse = await Axios.delete(this.signOutUrl, {
           headers: { ...this.session }
         });
@@ -298,12 +298,12 @@ class JtockAuth {
       uid: headers.uid ? headers.uid : this.session.uid
     };
     this.session = { ...session };
-    localStorage.setItem(storageKey, JSON.stringify(session));
+    localStorage && localStorage.setItem(storageKey, JSON.stringify(session));
   }
 
   private setLastSession() {
-    const lastSession = localStorage.getItem(storageKey);
-    const lastRoles = localStorage.getItem(storageRoleKey);
+    const lastSession =  localStorage && localStorage.getItem(storageKey);
+    const lastRoles = localStorage && localStorage.getItem(storageRoleKey);
     if (lastSession) {
       const headers: DeviseHeader = JSON.parse(lastSession);
       this.setSession(headers);
@@ -316,7 +316,7 @@ class JtockAuth {
   private setRoles(response: AxiosResponse<any>) {
     if(this.options.useRoles){
       this.roles = response && response.data ? response.data.roles : []
-      localStorage.setItem(storageRoleKey, JSON.stringify(this.roles))
+      localStorage && localStorage.setItem(storageRoleKey, JSON.stringify(this.roles))
     }
   }
 }
